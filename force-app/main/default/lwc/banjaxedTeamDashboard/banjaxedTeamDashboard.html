@@ -1,0 +1,128 @@
+<template>
+    <lightning-card title="SMS Team Performance Dashboard" icon-name="standard:dashboard">
+        
+        <!-- Level 1: Organization Overview -->
+        <div if:true={showOverview} class="dashboard-container">
+            
+            <!-- Critical Teams Section (>200 unresolved) -->
+            <div if:true={hasCriticalTeams} class="section-header critical">
+                <h3>🚨 CRITICAL TEAMS (>200 unresolved)</h3>
+            </div>
+            <div if:true={hasCriticalTeams} class="team-grid">
+                <template for:each={criticalTeams} for:item="team">
+                    <div key={team.name} class="team-card critical" onclick={handleTeamClick} data-team={team.name}>
+                        <div class="team-name">{team.name}</div>
+                        <div class="team-count">{team.count}</div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- High Priority Teams Section (100-200 unresolved) -->
+            <div if:true={hasHighPriorityTeams} class="section-header high">
+                <h3>⚠️ HIGH PRIORITY TEAMS (100-200 unresolved)</h3>
+            </div>
+            <div if:true={hasHighPriorityTeams} class="team-grid">
+                <template for:each={highPriorityTeams} for:item="team">
+                    <div key={team.name} class="team-card high" onclick={handleTeamClick} data-team={team.name}>
+                        <div class="team-name">{team.name}</div>
+                        <div class="team-count">{team.count}</div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Moderate Priority Teams Section (25-99 unresolved) -->
+            <div if:true={hasModerateTeams} class="section-header moderate">
+                <h3>📊 MODERATE TEAMS (25-99 unresolved)</h3>
+            </div>
+            <div if:true={hasModerateTeams} class="team-grid">
+                <template for:each={moderateTeams} for:item="team">
+                    <div key={team.name} class="team-card moderate" onclick={handleTeamClick} data-team={team.name}>
+                        <div class="team-name">{team.name}</div>
+                        <div class="team-count">{team.count}</div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Good Teams Section (<25 unresolved) -->
+            <div if:true={hasGoodTeams} class="section-header good">
+                <h3>✅ GOOD TEAMS (&lt;25 unresolved)</h3>
+            </div>
+            <div if:true={hasGoodTeams} class="team-grid">
+                <template for:each={goodTeams} for:item="team">
+                    <div key={team.name} class="team-card good" onclick={handleTeamClick} data-team={team.name}>
+                        <div class="team-name">{team.name}</div>
+                        <div class="team-count">{team.count}</div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Level 2: Team Stage Breakdown -->
+        <div if:true={showTeamDetail} class="team-detail-container">
+            <div class="detail-header">
+                <lightning-button label="← Back to Overview" onclick={handleBackClick} variant="neutral"></lightning-button>
+                <h2>{selectedTeamName} Team Stage Breakdown</h2>
+                <div class="total-count">Total Unresolved: {selectedTeamTotal} messages</div>
+            </div>
+            
+            <div class="stage-breakdown">
+                <template for:each={selectedTeamStages} for:item="stage">
+                    <div key={stage.name} class="stage-row clickable" onclick={handleStageClick} data-stage={stage.name}>
+                        <div class="stage-info">
+                            <div class="stage-name">{stage.name} Stage:</div>
+                            <div class="stage-count">{stage.count} messages ({stage.percentage}%)</div>
+                            <div class="click-hint">Click to view matters →</div>
+                        </div>
+                        <div class="stage-bar">
+                            <div class="stage-fill" style={stage.barStyle}></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Level 3: Individual Matters View -->
+        <div if:true={showMattersDetail} class="matters-detail-container">
+            <div class="detail-header">
+                <lightning-button label="← Back to Stages" onclick={handleBackToStagesClick} variant="neutral"></lightning-button>
+                <lightning-button label="← Back to Overview" onclick={handleBackClick} variant="brand"></lightning-button>
+                <h2>{selectedTeamName} - {selectedStageName} Stage Matters</h2>
+                <div class="total-count">{selectedStageMatters.length} Open Matters with Unresolved Messages</div>
+            </div>
+            
+            <div class="matters-list">
+                <template for:each={selectedStageMatters} for:item="matter">
+                    <div key={matter.id} class="matter-card">
+                        <div class="matter-header">
+                            <div class="matter-name">
+                                <lightning-icon icon-name="standard:case" size="small"></lightning-icon>
+                                <strong>{matter.name}</strong>
+                            </div>
+                            <div class="matter-status">{matter.status}</div>
+                        </div>
+                        <div class="matter-details">
+                            <div class="matter-info">
+                                <div class="info-item">
+                                    <span class="label">Unresolved Messages:</span>
+                                    <span class="value critical">{matter.unresolvedCount}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Last Message:</span>
+                                    <span class="value">{matter.lastMessageDate}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Client:</span>
+                                    <span class="value">{matter.clientName}</span>
+                                </div>
+                            </div>
+                            <div class="matter-actions">
+                                <lightning-button label="View Matter" onclick={handleViewMatter} data-matter-id={matter.id} variant="brand" size="small"></lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+    </lightning-card>
+</template>
